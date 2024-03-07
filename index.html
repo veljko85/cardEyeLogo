@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            overflow: hidden;
+            background-color: black;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            /* overflow: hidden; */
+            background-color: black;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-container {
+            width: 500px;
+            height: 500px;
+            /* border: 1px solid white; */
+            background-image: url("logo/logo.png");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .zenica-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .zenica-contain-move {
+            /* background-color: aqua; */
+            opacity: 0.5;
+            position: absolute;
+            width: 40%;
+            height: 25%;
+            left: 30%;
+            top: 31%;
+        }
+
+        .zenica-mask {
+            width: 100%;
+            height: 100%;
+            mask-image: url("./logo/maska-zjenice.png");
+            mask-repeat: no-repeat;
+            mask-size: 100%
+        }
+
+        .zenica {
+            width: 100%;
+            height: 100%;
+            /* transform: translateX(-10%) rotateY(-50deg); */
+            transform: translateX(-12%) translateY(0%) rotateX(0deg) rotateY(0deg);
+            transition: all 0.2s;
+        }
+
+        .kapak-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .kapak-mask {
+            width: 100%;
+            height: 100%;
+            mask-image: url("./logo/maska-kapka.png");
+            mask-repeat: no-repeat;
+            mask-size: 100%;
+            position: relative;
+        }
+
+        .kapak {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform: translateY(-12%);
+            animation: kapak-gornji 3s infinite;
+        }
+
+        .kapak-donji {
+            width: 100%;
+            height: 100%;
+            transform: rotate(180deg);
+            position: absolute;
+            animation: kapak-donji 3s infinite;
+        }
+
+        @keyframes kapak-gornji {
+            0% {
+                transform: translateY(-12%);
+            }
+
+            5% {
+                transform: translateY(5%);
+            }
+
+            10% {
+                transform: translateY(-12%);
+            }
+
+            100% {
+                transform: translateY(-12%);
+            }
+        }
+
+        @keyframes kapak-donji {
+            0% {
+                transform: rotate(180deg) translateY(0);
+            }
+
+            5% {
+                transform: rotate(180deg) translateY(15%);
+            }
+
+            10% {
+                transform: rotate(180deg) translateY(0);
+            }
+
+            100% {
+                transform: rotate(180deg) translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="logo-container">
+            <div class="zenica-container">
+                <div class="zenica-contain-move"></div>
+                <div class="zenica-mask">
+                    <img class="zenica" src="./logo/zjenica.png">
+                </div>
+            </div>
+            <div class="kapak-container">
+                <div class="kapak-mask">
+                    <img class="kapak" src="./logo/kapak.png">
+                    <img class="kapak-donji" src="./logo/kapak.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var zenica = document.getElementsByClassName("zenica")[0];
+        var zenicaCont = document.getElementsByClassName("zenica-contain-move")[0];
+
+        addEventListener("mousemove", e => {
+            var touch = getTouch(e);
+            moveEye({ x: touch.x, y: touch.y }, zenicaCont, zenica);
+        })
+
+        function moveEye(mouse, zenicaCont, zenica) {
+            let traX = 0
+            let traY = 0
+            let rotX = 0
+            let rotY = 0
+            var zenicaContRadius = zenicaCont.offsetWidth / 2;
+            var zenicaRadius = zenica.offsetWidth / 2;
+
+            var traXOffset = zenicaCont.getBoundingClientRect().left;
+            var traYOffset = zenicaCont.getBoundingClientRect().top;
+
+            var center = [zenicaCont.getBoundingClientRect().left + zenicaContRadius, zenicaCont.getBoundingClientRect().top + zenicaContRadius];
+
+            var dist = getDistance([mouse.x, mouse.y], center);
+
+            if (dist <= zenicaContRadius) {
+                traX = mouse.x - traXOffset - zenicaContRadius;
+                traY = mouse.y - traYOffset - zenicaContRadius;
+            } else {
+                var x = mouse.x - center[0];
+                var y = mouse.y - center[1];
+                var radians = Math.atan2(y, x);
+                traX = (Math.cos(radians) * (zenicaContRadius - zenicaRadius));
+                traY = (Math.sin(radians) * (zenicaContRadius - zenicaRadius));
+            }
+
+            rotY = traX / 3
+            rotX = -(traY / 3)
+            traX = -(traX / 2.5)
+            traY = -(traY / 5)
+
+            zenica.style.transform = "translateX(" + traX + "px) translateY(" + traY + "px) rotateX(" + rotX + "deg) rotateY(" + rotY + "deg)"
+        }
+        function getDistance(dot1, dot2) {
+            var x1 = dot1[0],
+                y1 = dot1[1],
+                x2 = dot2[0],
+                y2 = dot2[1];
+
+            return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        }
+        function getTouch(e) {
+            if (e.touches) {
+                return {
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY
+                }
+            } else {
+                return {
+                    x: e.clientX,
+                    y: e.clientY
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
