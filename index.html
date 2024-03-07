@@ -171,6 +171,11 @@
             moveEye({ x: touch.x, y: touch.y }, zenicaCont, zenica);
         })
 
+        addEventListener("touchmove", e => {
+            var touch = getTouch(e);
+            moveEye({ x: touch.x, y: touch.y }, zenicaCont, zenica);
+        })
+
         function moveEye(mouse, zenicaCont, zenica) {
             let traX = 0
             let traY = 0
